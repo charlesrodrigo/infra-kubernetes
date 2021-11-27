@@ -1,33 +1,26 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: ns-workload-one
-  labels:
-    istio-injection: enabled
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: ns-workload-one
-  name: workload-one
+  namespace: ns-workload-client
+  name: workload-client
   labels:
-   app: workload-one
+    app: workload-client
 spec:
   selector:
     matchLabels:
-      app: workload-one
+      app: workload-client
   replicas: 1
   template:
     metadata:
+      name: workload-client
       annotations:
         sidecar.istio.io/inject: "true"
       labels:
-        app: workload-one
+        app: workload-client
     spec:
       containers:
-        - name: workload-one
-          image: workload-one
+        - name: workload-client
+          image: workload-client
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 80
@@ -36,16 +29,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  namespace: ns-workload-one
-  name: workload-one
+  namespace: ns-workload-client
+  name: workload-client
   labels:
-    app: workload-one
+    app: workload-client
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
     - name: http
-      port: 80
+      port: 8080
       targetPort: 80
       protocol: TCP
   selector:
-    app: workload-one
+    app: workload-client

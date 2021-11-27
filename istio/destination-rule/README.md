@@ -7,27 +7,32 @@ Para realizar os testes foi criado 3 nanoserviço:
 
 Primeiros passos é gerar a as imagens docker, executar os comandos apartir da pasta raiz do projeto
 
+Cria o namespace com a anotação para injetar o istio nos pods
+```
+kubectl apply -f ./istio/destination-rule/namespace.yaml
+```
+
 Cria a imagem e deployment do workload one
 ```
-docker build ./istio/virtual-service/workload-one/ -t workload-one
+docker build ./istio/destination-rule/workload-one/ -t workload-one
 
-kubectl apply -f ./istio/virtual-service/workload-one/deployment.yaml 
+kubectl apply -f ./istio/destination-rule/workload-one/deployment.yaml 
 ```
 
 Cria a imagem e deployment do workload two
 ```
-docker build ./istio/virtual-service/workload-two/ -t workload-two
+docker build ./istio/destination-rule/workload-two/ -t workload-two
 
-kubectl apply -f ./istio/virtual-service/workload-two/deployment.yaml 
+kubectl apply -f ./istio/destination-rule/workload-two/deployment.yaml 
 ```
 
 Cria a imagem e deployment do workload client
 ```
-docker build ./istio/virtual-service/workload-client/ -t workload-client
+docker build ./istio/destination-rule/workload-client/ -t workload-client
 
-kubectl apply -f ./istio/virtual-service/workload-client/deployment.yaml 
+kubectl apply -f ./istio/destination-rule/workload-client/deployment.yaml 
 
-kubectl apply -f ./istio/virtual-service/workload-client/route.yaml 
+kubectl apply -f ./istio/destination-rule/workload-client/route.yaml 
 ```
 
 Após executar os comandos se tudo deu certo, você realizar uma chamada http GET 

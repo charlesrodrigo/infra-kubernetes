@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: ns-workload-client
+  name: workload-one
+  labels:
+   app: workload
+   workload: workload-one
+spec:
+  selector:
+    matchLabels:
+      app: workload
+      workload: workload-one
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: workload
+        workload: workload-one
+    spec:
+      containers:
+        - name: workload-one
+          image: workload-one
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80

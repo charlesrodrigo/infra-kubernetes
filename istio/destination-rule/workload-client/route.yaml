@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: ns-workload-client
+  name: generic-service
+  labels:
+    app: generic-service
+    service: generic-service
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 80
+      targetPort: 80
+      protocol: TCP     
+  selector:
+    app: workload
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: workload-rules
+  namespace: ns-workload-client
+spec:
+  host: generic-service.ns-workload-client.svc.cluster.local
+  subsets:
+  - name: workload-one
+    labels:
+      workload: workload-one
+  - name: workload-two
+    labels:
+      workload: workload-two
+
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  namespace: ns-workload-client
+  name: generic-service
+spec:
+  hosts:
+  - "generic-service.ns-workload-client.svc.cluster.local"
+  gateways:
+  - mesh  
+  http:
+  #PATH    
+  - match:
+    - uri:
+        prefix: /workload/01
+    route:
+    - destination:
+        host: generic-service.ns-workload-client.svc.cluster.local
+        subset: workload-one
+        port:
+          number: 80
+
+  - match:
+    - uri:
+        prefix: /workload/02
+    rewrite:
+      uri: /workload-two    
+    route:
+    - destination:
+        host: generic-service.ns-workload-client.svc.cluster.local
+        subset: workload-two
+        port:
+          number: 80          
+  #HEADER        
+  - match:
+    - headers:
+        workload:
+          exact: "01"
+    route:
+    - destination:
+        host: generic-service.ns-workload-client.svc.cluster.local
+        subset: workload-one
+        port:
+          number: 80       
+  - match:
+    - headers:
+        workload:
+          exact: "02"
+    route:
+    - destination:
+        host: generic-service.ns-workload-client.svc.cluster.local
+        subset: workload-two
+        port:
+          number: 80 
+
+  #DEFAULT             
+  - route:
+    - destination:
+        host: generic-service.ns-workload-client.svc.cluster.local
+        subset: workload-one
+        port:
+          number: 80
+
